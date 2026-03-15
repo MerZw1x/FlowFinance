@@ -24,5 +24,6 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 
 	transaction.Category = h.service.DetectCategory(transaction.Description)
 
+	h.service.repo.CreateTransaction(transaction)
 	return c.JSON(transaction)
 }
