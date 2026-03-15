@@ -1,8 +1,19 @@
 package service
 
-import "strings"
+import (
+	"flowFinance/internal/repository"
+	"strings"
+)
 
-type TransactionService struct{}
+type TransactionService struct {
+	repo *repository.TransactionRepository
+}
+
+func NewTransactionService(newRepo *repository.TransactionRepository) TransactionService {
+	return TransactionService{
+		repo: newRepo,
+	}
+}
 
 func (s *TransactionService) DetectCategory(desc string) string {
 	desc = strings.ToLower(desc)

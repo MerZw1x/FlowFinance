@@ -1,8 +1,11 @@
 package main
 
 import (
+	"flowFinance/internal/database"
 	"flowFinance/internal/handler"
+	"flowFinance/internal/repository"
 	"flowFinance/internal/service"
+
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +21,15 @@ func main() {
 
 	app := fiber.New()
 
-	transactionService := &service.TransactionService{}
+	db, err := database.NewDB()
+	if err != nil {
+		log.Fatalf("Can't create database: %w", err)
+	}
+
+	transactionRepository := repository.NewTransactionRepository(db)
+
+	transactionService := service.NewTransactionService(transactionRepository)
+
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	app.Post("/transactions", transactionHandler.CreateTransaction)
