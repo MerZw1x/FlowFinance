@@ -20,5 +20,9 @@ func NewTransactionRepository(newDb *pgxpool.Pool) *TransactionRepository {
 func (tp *TransactionRepository) CreateTransaction(transaction models.Transaction) error {
 	sqlStr := `INSERT INTO transactions(amount, description,
 			category) VALUES ($1, $2, $3)`
-	tp.db.Exec(context.Background(), sqlStr, transaction.Amount, transaction.Description, transaction.Category)
+
+	_, err := tp.db.Exec(context.Background(),
+		sqlStr, transaction.Amount, transaction.Description, transaction.Category)
+
+	return err
 }
