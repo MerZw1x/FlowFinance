@@ -23,13 +23,11 @@ func main() {
 
 	db, err := database.NewDB()
 	if err != nil {
-		log.Fatalf("Can't create database: %w", err)
+		log.Fatalf("Can't create database: %v", err)
 	}
 
 	transactionRepository := repository.NewTransactionRepository(db)
-
 	transactionService := service.NewTransactionService(transactionRepository)
-
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	app.Post("/transactions", transactionHandler.CreateTransaction)

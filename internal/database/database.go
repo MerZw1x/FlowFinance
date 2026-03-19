@@ -17,7 +17,7 @@ func NewDB() (*pgxpool.Pool, error) {
 	host := os.Getenv("POSTGRES_HOST")
 
 	connString := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s",
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		user,
 		password,
 		host,
