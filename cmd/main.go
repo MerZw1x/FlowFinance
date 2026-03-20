@@ -31,6 +31,7 @@ func main() {
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	app.Post("/transactions", transactionHandler.CreateTransaction)
+	app.Get("/transactions", transactionHandler.GetAllTransactions)
 
 	log.Fatal(app.Listen(":3000"))
 }
