@@ -32,9 +32,7 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 }
 
 func (h *TransactionHandler) GetAllTransactions(c *fiber.Ctx) error {
-	transactions := make([]models.Transaction, 8)
-
-	err := h.service.GetAllTransactions(&transactions)
+	transactions, err := h.service.GetAllTransactions()
 	if err != nil {
 		return err
 	}

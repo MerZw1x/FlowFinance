@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"flowFinance/internal/models"
-	"strconv"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -28,9 +27,8 @@ func (tp *TransactionRepository) CreateTransaction(transaction models.Transactio
 	return err
 }
 
-func (tp *TransactionRepository) GetAllTransactions(transactionsPtr *[]models.Transaction) error {
+func (tp *TransactionRepository) GetAllTransactions() (*[]models.Transaction, error) {
 	sqlStr := "SELECT amount, description, category FROM transactions"
-	i := 0
 
 	rows, err := tp.db.Query(context.Background(), sqlStr)
 	if err != nil {
@@ -39,22 +37,14 @@ func (tp *TransactionRepository) GetAllTransactions(transactionsPtr *[]models.Tr
 	defer rows.Close()
 
 	for rows.Next() {
-		var amountBytes []byte
-		var descriptionBytes []byte
-		var categoryBytes []byte
+		var subtr models.Transaction
 
-		err := rows.Scan(&amountBytes, &descriptionBytes, &categoryBytes)
+		err := rows.Scan(&subtr.Amount, &subtr.Description, &subtr.Category)
 		if err != nil {
 			return err
 		}
 
-		amountStr := string(amountBytes)
-		(*transactionsPtr)[i].Amount, err = strconv.ParseFloat(amountStr, 64)
-
-		(*transactionsPtr)[i].Description = string(descriptionBytes)
-
-		(*transactionsPtr)[i].Category = string(categoryBytes)
-		i++
+		transactionsPtr
 
 	}
 
