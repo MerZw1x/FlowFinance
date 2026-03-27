@@ -27,27 +27,31 @@ func (tp *TransactionRepository) CreateTransaction(transaction models.Transactio
 	return err
 }
 
-func (tp *TransactionRepository) GetAllTransactions() (*[]models.Transaction, error) {
+func (tp *TransactionRepository) GetAllTransactions() ([]models.Transaction, error) {
 	sqlStr := "SELECT amount, description, category FROM transactions"
 
 	rows, err := tp.db.Query(context.Background(), sqlStr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer rows.Close()
+	var Transactions []models.Transaction
 
 	for rows.Next() {
 		var subtr models.Transaction
 
 		err := rows.Scan(&subtr.Amount, &subtr.Description, &subtr.Category)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		transactionsPtr
+		Transactions = append(Transactions, subtr)
 
 	}
 
 	err = rows.Err()
-	return err
+	if err != nil {
+		return nil, err
+	}
+	return Transactions, nil
 }
