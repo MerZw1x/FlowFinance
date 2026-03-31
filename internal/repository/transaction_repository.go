@@ -27,7 +27,7 @@ func (tp *TransactionRepository) CreateTransaction(transaction models.Transactio
 	return err
 }
 
-func (tp *TransactionRepository) GetAllTransactions() ([]models.Transaction, error) {
+func (tp *TransactionRepository) GetAllTransactions(filter models.TransactionFiltets) ([]models.Transaction, error) {
 	sqlStr := "SELECT amount, description, category FROM transactions"
 
 	rows, err := tp.db.Query(context.Background(), sqlStr)
