@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"flowFinance/internal/models"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -27,10 +28,36 @@ func (tp *TransactionRepository) CreateTransaction(transaction models.Transactio
 	return err
 }
 
-func (tp *TransactionRepository) GetAllTransactions(filter models.TransactionFiltets) ([]models.Transaction, error) {
-	sqlStr := "SELECT amount, description, category FROM transactions"
+func (tp *TransactionRepository) GetAllTransactions(filter models.TransactionFilters) ([]models.Transaction, error) {
+	sqlStr := "SELECT amount, description, category FROM transactions WHERE 1=1"
+	args := []any{}
+	argsId := 1
 
-	rows, err := tp.db.Query(context.Background(), sqlStr)
+	if filter.Category != "" {
+		sqlStr += fmt.Sprintf(" AND category = $%d", argsId)
+		args = append(args, filter.Category)
+		argsId++
+	}
+
+	if filter.Description != "" {
+		sqlStr += fmt.Sprintf(" AND descripton ILIKE $%d", argsId)
+		args = append(args, filter.Description)
+		argsId++
+	}
+
+	if filter.MinAmount > 0 {
+		sqlStr += fmt.Sprintf(" AND amount > $%d", argsId)
+		args = append(args, filter.MinAmount)
+		argsId++
+	}
+
+	if filter.MaxAmount > 0 {
+		sqlStr += fmt.Sprintf(" AND amount < $%d", argsId)
+		args = append(args, filter.MaxAmount)
+		argsId++
+	}
+
+	rows, err := tp.db.Query(context.Background(), sqlStr, args...)
 	if err != nil {
 		return nil, err
 	}

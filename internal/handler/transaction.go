@@ -32,7 +32,14 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 }
 
 func (h *TransactionHandler) GetAllTransactions(c *fiber.Ctx) error {
-	transactions, err := h.service.GetAllTransactions()
+	filter := models.TransactionFilters{
+		Category:    c.Query("category"),
+		Description: c.Query("description"),
+		MinAmount:   c.QueryFloat("minAmount"),
+		MaxAmount:   c.QueryFloat("maxAmount"),
+	}
+
+	transactions, err := h.service.GetAllTransactions(filter)
 	if err != nil {
 		return err
 	}

@@ -21,8 +21,8 @@ func (s *TransactionService) CreateTransaction(transaction models.Transaction) e
 	return err
 }
 
-func (s *TransactionService) GetAllTransactions(filter models.TransactionFiltets) ([]models.Transaction, error) {
-	return s.repo.GetAllTransactions()
+func (s *TransactionService) GetAllTransactions(filter models.TransactionFilters) ([]models.Transaction, error) {
+	return s.repo.GetAllTransactions(filter)
 }
 
 func (s *TransactionService) DetectCategory(desc string) string {
