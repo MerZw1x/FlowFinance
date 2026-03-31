@@ -5,6 +5,7 @@ import (
 	"flowFinance/internal/models"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -29,6 +30,43 @@ func (tp *TransactionRepository) CreateTransaction(transaction models.Transactio
 }
 
 func (tp *TransactionRepository) GetAllTransactions(filter models.TransactionFilters) ([]models.Transaction, error) {
+	sqlStr, args := tp.makeFilterQuery(filter)
+
+	rows, err := tp.db.Query(context.Background(), sqlStr, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var Transactions []models.Transaction
+
+	for rows.Next() {
+
+		subTransaction, err := tp.scanRow(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		Transactions = append(Transactions, subTransaction)
+
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return Transactions, nil
+}
+
+func (tp *TransactionRepository) scanRow(row pgx.Row) (models.Transaction, error) {
+	var subTransaction models.Transaction
+
+	err := row.Scan(&subTransaction.Amount, &subTransaction.Description, &subTransaction.Category)
+
+	return subTransaction, err
+}
+
+func (tp *TransactionRepository) makeFilterQuery(filter models.TransactionFilters) (string, []any) {
 	sqlStr := "SELECT amount, description, category FROM transactions WHERE 1=1"
 	args := []any{}
 	argsId := 1
@@ -56,29 +94,5 @@ func (tp *TransactionRepository) GetAllTransactions(filter models.TransactionFil
 		args = append(args, filter.MaxAmount)
 		argsId++
 	}
-
-	rows, err := tp.db.Query(context.Background(), sqlStr, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var Transactions []models.Transaction
-
-	for rows.Next() {
-		var subtr models.Transaction
-
-		err := rows.Scan(&subtr.Amount, &subtr.Description, &subtr.Category)
-		if err != nil {
-			return nil, err
-		}
-
-		Transactions = append(Transactions, subtr)
-
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-	return Transactions, nil
+	return sqlStr, args
 }
